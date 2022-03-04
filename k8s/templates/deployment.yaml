@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "arm64v8-lnd.fullname" . }}
+  labels:
+    {{- include "arm64v8-lnd.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "arm64v8-lnd.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "arm64v8-lnd.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "arm64v8-lnd.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args: ["/home/lnd/init.sh"]
+          envFrom:
+            - secretRef:
+                name: lnd-rpc-creds
+          {{- with .Values.initEnv }}
+          env: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.persistence.mounts }}
+          volumeMounts: {{- toYaml . | nindent 12 }}
+          {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- with .Values.image.command }}
+          command: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.image.args }}
+          args: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.image.stdin }}
+          stdin: {{ . }}
+          {{- end }}
+          {{- with .Values.image.tty }}
+          tty: {{ . }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.env }}
+          env: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.envFrom }}
+          envFrom: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.persistence.mounts }}
+          volumeMounts: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.image.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.persistence.volumes }}
+      volumes: {{- toYaml . | nindent 6 }}
+      {{- end }}
