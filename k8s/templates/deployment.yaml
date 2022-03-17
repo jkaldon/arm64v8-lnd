@@ -25,8 +25,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: init
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+          securityContext: {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh"]
@@ -42,8 +41,7 @@ spec:
           {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+          securityContext: {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           {{- with .Values.image.command }}
           command: {{- toYaml . | nindent 12 }}
@@ -58,6 +56,9 @@ spec:
           tty: {{ . }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.image.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.env }}
           env: {{- toYaml . | nindent 12 }}
           {{- end }}
