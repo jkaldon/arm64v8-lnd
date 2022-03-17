@@ -14,7 +14,12 @@ RUN apk add --no-cache \
   addgroup -g 1000 lnd && \
   adduser -h /home/lnd -s /sbin/nologin --u 1000 -G lnd -D lnd && \
   mkdir -p /data && \
-  chown -R lnd.lnd /data
+  chown -R lnd.lnd /data && \
+  cd /tmp && \
+  wget https://github.com/LN-Zap/lndconnect/releases/download/v0.2.0/lndconnect-linux-arm64-v0.2.0.tar.gz && \
+  tar -xzf lndconnect-linux-arm64-v0.2.0.tar.gz && \
+  mv lndconnect-linux-arm64-v0.2.0/lndconnect /usr/local/bin/ && \
+  rm -rf lndconnect-linux-arm64-v0.2.0.tar.gz lndconnect-linux-arm64-v0.2.0/
 
 USER lnd
 WORKDIR /home/lnd

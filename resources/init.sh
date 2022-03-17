@@ -20,7 +20,10 @@ fi
 # As a result of this artificial limitation, we edit the configuration file
 # to listen on the ip address of the pod during initialization.
 POD_IP=$(hostname -i)
-sed -E -i "s/^restlisten=.+(:.+)$/restlisten=${POD_IP}\1/g" /data/lnd/lnd.conf
+# NOTE: This only updates the first occurance, which allows following 
+# (rest|rpc)listen= lines to listen on 127.0.0.1.
+sed -E -i "1,/restlisten/s/^restlisten=.+(:.+)$/restlisten=${POD_IP}\1/" /data/lnd/lnd.conf
+sed -E -i "1,/rpclisten/s/^rpclisten=.+(:.+)$/rpclisten=${POD_IP}\1/" /data/lnd/lnd.conf
 echo "Updated /data/lnd/lnd.conf to listen on address '${POD_IP}'."
 
 echo 'Finished!'

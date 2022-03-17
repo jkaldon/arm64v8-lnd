@@ -136,6 +136,7 @@ sync-freelist=true
 
 ; Specify the interfaces to listen on for gRPC connections. One listen
 ; address per line.
+rpclisten=0.0.0.0:10009
 ; Only ipv4 localhost on port 10009:
 ;   rpclisten=localhost:10009
 ; On ipv4 localhost port 10009 and ipv6 port 10010:
